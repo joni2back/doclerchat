@@ -1,0 +1,19 @@
+{
+  "name": "doclerchat",
+  "version": "1.0.0",
+  "description": "DoclerChat on Docker",
+  "author": "Jonas Sciangula Street <joni2back@gmail.com>",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js" 
+  },
+  "dependencies": {
+    "express": "^4.16.1",
+    "socket.io": "^2.2.0",
+    "mongoose": "^5.5.10",
+    "node-fetch": "^2.6.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.0"
+  }
+}

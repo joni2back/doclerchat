@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no"
+/>
+
+    <meta name="theme-color" content="#000000">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" />
+    <link rel="stylesheet" href="./index.css" />
+    <title>DoclerChat</title>
+  </head>
+  <body>
+    <div id="root">
+
+        <div id="chatApp" class="box">
+            <main role="main" class="box-body">
+                <div class="content container-fluid bootstrap snippets chat">
+                    <div class="chat-body">
+                        <div class="chat-status">
+                            <h6 class="label label-danger" v-if="!connected">Connecting...</h6>
+                            <h6 class="label label-danger" v-if="connected && !historyLoaded">Loading history...</h6>
+                        </div>
+                        <template-chat-message
+                            :class="{disabled: !connected}"
+                            v-for="message in messages" v-bind:key="message.date"
+                            :user-name="message.userName"
+                            :user-id="message.userId"
+                            :body="message.body"
+                            :date="message.date"
+                            :type="message.userType"
+                        />
+                    </div>
+                </div>
+            </main>
+        
+            <footer class="box-footer">
+                <form class="form-answer" v-on:submit.prevent="sendMsg">
+                    <div class="chat-feedback" v-if="typing && typing.userName">
+                        {{ typing.userName }} is typing...
+                    </div>
+                    <input type="text" :value="input" @input="update" class="form-control input-block input-lg" placeholder="Escriba un mensaje..."  :disabled="!connected"/>
+                    <input type="submit" style="display: none" :disabled="!connected" />
+                </form>
+            </footer>
+        </div>
+
+
+    </div>
+
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.slim.js"></script>
+
+    <script type="text/x-template" id="template-chat-message">
+        <div :class="'answer ' + answerClass">
+            <div class="avatar">
+                <img :src="avatarUrl" :alt="fullName" :title="fullName">
+                <div class="status"></div>
+            </div>
+            <div class="text">
+                {{ body }}
+                <div v-if="mediaHtml" v-html="mediaHtml"></div>
+            </div>
+            <div class="name">
+                <span v-if="! itsMe">
+                    {{ userName }} -
+                </span>
+                {{ formatedDate }}
+            </div>
+        </div>
+    </script>
+    <script src="./index.js"></script>
+    
+  </body>
+</html>
+
+
+
+
+
+
+
+

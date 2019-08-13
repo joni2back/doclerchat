@@ -1,0 +1,26 @@
+version: '3'
+services:
+  doclerchat_io_node:
+    container_name: doclerchat_io_node
+    image: node:11
+    #restart: always
+    volumes:
+      - ./:/app
+
+    working_dir: /app
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    command: npm run start 
+    environment:
+      - PORT=80
+      - MONGO_HOST=doclerchat_mongo
+    tty: true
+    ports:
+      - 8080:80
+
+  doclerchat_mongo:
+    container_name: doclerchat_mongo
+    image: mongo
+    volumes:
+      - ./db:/data/db
