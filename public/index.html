@@ -4,55 +4,80 @@
     <meta charset="utf-8">
     <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no"
 />
-
-    <meta name="theme-color" content="#000000">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" />
-    <link rel="stylesheet" href="./index.css" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="./css/index.css" />
     <title>DoclerChat</title>
   </head>
   <body>
-    <div id="root">
+    
+    <div id="chatApp" class="box theme" :class="theme">
+        <nav>
+            <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                <a class="nav-item nav-link" :class="selectedWindow === 'chat' ? 'active' : ''" @click="setWindow('chat')">Chat</a>
+                <a class="nav-item nav-link" :class="selectedWindow === 'settings' ? 'active' : ''" @click="setWindow('settings')">Settings</a>
+            </div>
+        </nav>     
+        <div class="window window-chat" v-if="selectedWindow === 'chat'">
+            <chat-window
+                :room-id="roomId"
+                :user-name="userName"
+            />
+        </div>
+        <div class="window window-settings" v-if="selectedWindow === 'settings'">
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">User Name</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" placeholder="Username" v-model="userName">
+                </div>
+            </div>
 
-        <div id="chatApp" class="box">
-            <main role="main" class="box-body">
-                <div class="content container-fluid bootstrap snippets chat">
-                    <div class="chat-body">
-                        <div class="chat-status">
-                            <h6 class="label label-danger" v-if="!connected">Connecting...</h6>
-                            <h6 class="label label-danger" v-if="connected && !historyLoaded">Loading history...</h6>
+            <fieldset class="form-group">
+                <div class="row">
+                    <legend class="col-form-label col-sm-2 pt-0">Interface color</legend>
+                    <div class="col-sm-10">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="theme-light" value="light" v-model="theme">
+                            <label class="form-check-label" for="theme-light">
+                                Light
+                            </label>
                         </div>
-                        <template-chat-message
-                            :class="{disabled: !connected}"
-                            v-for="message in messages" v-bind:key="message.date"
-                            :user-name="message.userName"
-                            :user-id="message.userId"
-                            :body="message.body"
-                            :date="message.date"
-                            :type="message.userType"
-                        />
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="theme-dark" value="dark" v-model="theme">
+                            <label class="form-check-label" for="theme-dark">
+                                Dark
+                            </label>
+                        </div>
                     </div>
                 </div>
-            </main>
-        
-            <footer class="box-footer">
-                <form class="form-answer" v-on:submit.prevent="sendMsg">
-                    <div class="chat-feedback" v-if="typing && typing.userName">
-                        {{ typing.userName }} is typing...
+            </fieldset>
+                   
+            <fieldset class="form-group">
+                <div class="row">
+                    <legend class="col-form-label col-sm-2 pt-0">Clock display</legend>
+                    <div class="col-sm-10">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="clock-12" value="12" v-model="clockMode">
+                            <label class="form-check-label" for="clock-12">
+                                12 hours
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="clock-24" value="24" v-model="clockMode">
+                            <label class="form-check-label" for="clock-24">
+                                24 hours
+                            </label>
+                        </div>
                     </div>
-                    <input type="text" :value="input" @input="update" class="form-control input-block input-lg" placeholder="Escriba un mensaje..."  :disabled="!connected"/>
-                    <input type="submit" style="display: none" :disabled="!connected" />
-                </form>
-            </footer>
+                </div>
+            </fieldset>
         </div>
-
 
     </div>
 
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.slim.js"></script>
-
-    <script type="text/x-template" id="template-chat-message">
+    <script type="text/x-template" id="chat-message">
         <div :class="'answer ' + answerClass">
             <div class="avatar">
                 <img :src="avatarUrl" :alt="fullName" :title="fullName">
@@ -70,7 +95,47 @@
             </div>
         </div>
     </script>
-    <script src="./index.js"></script>
+
+    <script type="text/x-template" id="chat-window">
+        <div>
+            <main role="main" class="box-body">
+                <div class="content container-fluid bootstrap snippets chat">
+                    <div class="chat-body">
+                        <div class="chat-status">
+                            <h6 class="label label-danger" v-if="!connected">Connecting...</h6>
+                            <h6 class="label label-danger" v-if="connected && !historyLoaded">Loading history...</h6>
+                        </div>
+                        <chat-message
+                            :class="{disabled: !connected}"
+                            v-for="message in messages" v-bind:key="message.date"
+                            :user-name="message.userName"
+                            :its-me="message.userName == userName"
+                            :body="message.body"
+                            :date="message.date"
+                            :clock-mode="$parent.clockMode"
+                            :type="message.userType">
+                        </chat-message>
+                        
+                    </div>
+                </div>
+            </main>
+        
+            <footer class="box-footer">
+                <form class="form-answer" v-on:submit.prevent="sendMsg">
+                    <div class="chat-feedback" v-if="typing && typing.userName">
+                        {{ typing.userName }} is typing...
+                    </div>
+                    <input type="text" :value="input" @input="update" class="form-control input-block input-lg" placeholder="Write a message..."  :disabled="!connected"/>
+                    <input type="submit" style="display: none" :disabled="!connected" />
+                </form>
+            </footer>
+        </div>
+    </script>
+
+    <script src="./js/components/chat-window.vue.js"></script>
+    <script src="./js/components/chat-message.vue.js"></script>
+    <script src="./js/api.js"></script>
+    <script src="./js/app.js"></script>
     
   </body>
 </html>

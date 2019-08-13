@@ -23,7 +23,6 @@ module.exports = function(io) {
     
             const messageDate = new Date;
             const messageData = {
-                userId: socket.userId,
                 userName: socket.userName,
                 date: messageDate,
                 roomId: data.roomId,
@@ -40,8 +39,7 @@ module.exports = function(io) {
     
         socket.on('typing', (data) => {
             io.sockets.in(data.roomId).emit('typing', {
-                userName : socket.userName,
-                userId: socket.userId
+                userName : socket.userName
             });
         })
     });
