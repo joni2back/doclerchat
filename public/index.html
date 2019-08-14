@@ -5,6 +5,7 @@
     <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no"
 />
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
     <link rel="stylesheet" href="./css/index.css" />
     <title>DoclerChat</title>
   </head>
@@ -125,7 +126,16 @@
                     <div class="chat-feedback" v-if="typing && typing.userName">
                         {{ typing.userName }} is typing...
                     </div>
-                    <input type="text" :value="input" @input="update" class="form-control input-block input-lg" placeholder="Write a message..."  :disabled="!connected"/>
+
+                    <div class="input-group">
+                        <input type="text" :value="input" @input="update" class="form-control form-control-lg" placeholder="Write a message..."  :disabled="!connected"/>
+                        <div class="input-group-prepend">
+                            <button class="btn btn-info input-group-text">
+                                <i class="fa fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+
                     <input type="submit" style="display: none" :disabled="!connected" />
                 </form>
             </footer>

@@ -1,3 +1,9 @@
+/**
+ * XHR method to get history from backend API
+ * @param String conversationId 
+ * @param String lastOne 
+ * @returns Promise
+ */
 function getHistory(conversationId, lastOne) {
     return new Promise((resolve, reject) => {
         const url = `/history/${conversationId}/${lastOne || ''}`;

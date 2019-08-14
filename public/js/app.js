@@ -38,12 +38,27 @@ new Vue({
         }
     },
     methods: {
+
+        /**
+         * handler for event to change document title
+         * @param String value 
+         */
         applyTitle: function(value) {
             document.title = value;
         },
+
+        /**
+         * handler for event to switch windows (chat/settings)
+         * @param String value 
+         */
         setWindow: function(value) {
             this.selectedWindow = value;
         },
+
+        /**
+         * handler for revert to default settings
+         * @returns Object
+         */
         revertSettings: function() {
             return Object.assign(this, {
                 selectedWindow: 'chat',

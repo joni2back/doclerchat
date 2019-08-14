@@ -37,6 +37,10 @@ Vue.component('chat-window', {
         }
     },
     methods: {
+        /**
+         * this method init socket connections and handles events
+         * such as receiving messages, sending, etc
+         */
         initSocket: function() {
             
             this.socket = io.connect(location.hostname + ':' + location.port, {
@@ -92,23 +96,44 @@ Vue.component('chat-window', {
                 }, 5000);
             });
         },
+
+        /**
+         * this get the chat div element to bind events
+         * @returns HTMLDivElement
+         */
         getChatElement: function() {
             return this.chatElement || (this.chatElement = window.document.querySelector('.chat'));
         },
+
+        /**
+         * beep plays a notification sound
+         */
         beep: function() {
             this.beepSound && this.beepSound.play();
         },
+
+        /**
+         * this is used to scroll down the chat history on new messages
+         */
         scrollDown: function() {
             setTimeout(() => {
                 const el = this.getChatElement();
                 return el && el.scrollTo(0, 9999);
             }, 50);
         },
+
+        /**
+         * bind event onscroll to chat div to load previous messages from the history
+         */
         registerInfiniteScroll: function() {
             const el = this.getChatElement();
-            el && (el.onscroll = () => el.scrollTop === 0 && this.loadHistoryFroomScroll());
+            el && (el.onscroll = () => el.scrollTop === 0 && this.loadHistoryFromScroll());
         },
-        loadHistoryFroomScroll: function() {
+
+        /**
+         * lazy loading of history based on last message loaded
+         */
+        loadHistoryFromScroll: function() {
             const el = this.getChatElement();
             getHistory(this.roomId, this.historyLoaded).then(response => {
                 if (! response.length) {
@@ -119,6 +144,10 @@ Vue.component('chat-window', {
                 el && el.scrollTo(0, 10);
             });
         },
+
+        /**
+         * xhr promise to get chat history
+         */
         loadHistory: function() {
             !this.historyLoaded && getHistory(this.roomId).then(response => {
                 if (! response.length) {
@@ -132,6 +161,11 @@ Vue.component('chat-window', {
                 window.console.warn('__chat_cannot_get_history');
             });
         },
+
+        /**
+         * handler to send message to socket
+         * @param Event event 
+         */
         sendMsg: function(event) {
             if (! this.socket) {
                 return;
@@ -145,8 +179,13 @@ Vue.component('chat-window', {
             this.input = '';
             this.scrollDown();
         },
-        update: function (e) {
-            this.input = e.target.value;
+
+        /**
+         * handler for chat message text field
+         * @param Event event 
+         */
+        update: function (event) {
+            this.input = event.target.value;
             this.socket.emit('typing', {
                 roomId: this.roomId
             });
