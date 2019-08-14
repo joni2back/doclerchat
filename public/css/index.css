@@ -12,6 +12,7 @@ html {
 .chat {
     height: calc(100vh - 150px);
     overflow-y: auto;
+    padding: 10px
 }
 
 .chat-users h6 {
@@ -309,6 +310,18 @@ html {
     color: #fff;
 }
 
+.message-media-cont {
+    margin-top: 1em;
+}
+
 .message-media-img {
     max-width: 120px;
+}
+
+.capitalize {
+    text-transform: capitalize;
+}
+
+[v-cloak] {
+    display: none !important;
 }

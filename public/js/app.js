@@ -1,18 +1,21 @@
 new Vue({
     el: '#chatApp',
     data: {
+        userName: null,
         selectedWindow: 'chat',
-        userName: localStorage.userName,
-        roomId: 'docler_chat_room',
+        roomId: 'Docler',
         theme: 'light',
-        clockMode: 12
+        clockMode: 12,
+        availableClockModes: [12, 24],
+        availableThemes: ['light', 'dark'],
+        availableRooms: ['Docler', 'Music', 'Movies', 'Development'],
     },
-    mounted: function() {
-        if (! localStorage.userName) {
-            this.userName = `Anonymous_${Math.floor(Math.random() * 100)}`;
-            localStorage.userName = this.userName;
-        }
+    beforeMount: function() {
+        this.userName = localStorage.userName || `guest_${Math.floor(Math.random() * 1000)}`;
 
+        if (localStorage.roomId) {
+            this.roomId = localStorage.roomId;
+        }
         if (localStorage.theme) {
             this.theme = localStorage.theme;
         }
@@ -24,6 +27,9 @@ new Vue({
         userName: function(value) {
             localStorage.userName = value;
         },
+        roomId: function(value) {
+            localStorage.roomId = value;
+        },
         theme: function(value) {
             localStorage.theme = value;
         },
@@ -31,10 +37,20 @@ new Vue({
             localStorage.clockMode = value;
         }
     },
-
     methods: {
+        applyTitle: function(value) {
+            document.title = value;
+        },
         setWindow: function(value) {
             this.selectedWindow = value;
+        },
+        revertSettings: function() {
+            return Object.assign(this, {
+                selectedWindow: 'chat',
+                roomId: 'Docler',
+                theme: 'light',
+                clockMode: 12,
+            })
         }
     }
 });

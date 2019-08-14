@@ -2,8 +2,10 @@ Vue.component('chat-window', {
 	template: '#chat-window',
     props: {
         roomId: String,
-        userName: String,
-        userId: Number,
+        userName: {
+            type: String,
+            required: true
+        },
     },
     data: function() {
         return {
@@ -14,12 +16,25 @@ Vue.component('chat-window', {
             historyLoaded: false,
             typing: null,
             beepSound: null,
+            unreadCount: 0
         }
     },
     mounted: function() {
         this.beepSound = new Audio('./media/notification.mp3');
         this.initSocket();
         this.registerInfiniteScroll();
+
+        window.addEventListener('focus', () => {
+            this.unreadCount = 0;
+            this.$emit('change-title', 'DoclerChat');
+        });
+    },
+    watch: {
+        unreadCount: function() {
+            if (document.hidden && this.unreadCount) {
+                this.$emit('change-title', `DoclerChat (${this.unreadCount} unread)`);
+            }
+        }
     },
     methods: {
         initSocket: function() {
@@ -53,8 +68,13 @@ Vue.component('chat-window', {
                 userId: this.userId
             });
             this.socket.on('new_message', data => {
+                if (document.hidden) {
+                    this.unreadCount++;
+                }
+                if (data.userName != this.userName) {
+                    this.beep();
+                }
                 this.typing = null;
-                this.beep();
                 this.messages.push(data);
                 this.scrollDown();
             });

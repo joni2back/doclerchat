@@ -10,7 +10,7 @@
   </head>
   <body>
     
-    <div id="chatApp" class="box theme" :class="theme">
+    <div id="chatApp" class="box theme" :class="theme" v-cloak>
         <nav>
             <div class="nav nav-tabs" id="nav-tab" role="tablist">
                 <a class="nav-item nav-link" :class="selectedWindow === 'chat' ? 'active' : ''" @click="setWindow('chat')">Chat</a>
@@ -21,9 +21,12 @@
             <chat-window
                 :room-id="roomId"
                 :user-name="userName"
+                @change-title="applyTitle"
             />
         </div>
+
         <div class="window window-settings" v-if="selectedWindow === 'settings'">
+
             <div class="form-group row">
                 <label class="col-sm-2 col-form-label">User Name</label>
                 <div class="col-sm-10">
@@ -35,16 +38,10 @@
                 <div class="row">
                     <legend class="col-form-label col-sm-2 pt-0">Interface color</legend>
                     <div class="col-sm-10">
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" id="theme-light" value="light" v-model="theme">
-                            <label class="form-check-label" for="theme-light">
-                                Light
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" id="theme-dark" value="dark" v-model="theme">
-                            <label class="form-check-label" for="theme-dark">
-                                Dark
+                        <div class="form-check" v-for="availableTheme in availableThemes">
+                            <input class="form-check-input" type="radio" :id="'theme-' + availableTheme" :value="availableTheme" v-model="theme">
+                            <label class="form-check-label capitalize" :for="'theme-' + availableTheme">
+                                {{ availableTheme }}
                             </label>
                         </div>
                     </div>
@@ -55,55 +52,60 @@
                 <div class="row">
                     <legend class="col-form-label col-sm-2 pt-0">Clock display</legend>
                     <div class="col-sm-10">
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" id="clock-12" value="12" v-model="clockMode">
-                            <label class="form-check-label" for="clock-12">
-                                12 hours
-                            </label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" id="clock-24" value="24" v-model="clockMode">
-                            <label class="form-check-label" for="clock-24">
-                                24 hours
+                        <div class="form-check" v-for="availableClockMode in availableClockModes">
+                            <input class="form-check-input" type="radio" :id="'theme-' + availableClockMode" :value="availableClockMode" v-model="clockMode">
+                            <label class="form-check-label" :for="'theme-' + availableClockMode">
+                                {{ availableClockMode }} hours
                             </label>
                         </div>
                     </div>
                 </div>
             </fieldset>
-        </div>
 
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Room</label>
+                <div class="col-sm-10">
+                    <select v-model="roomId" class="form-control">
+                        <option v-for="room in availableRooms" class="capitalize" :value="room">{{ room }}</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label">Revert settings</label>
+                <div class="col-sm-10">
+                    <button class="btn btn-info" @click.prevent="revertSettings">Do it</button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.slim.js"></script>
     <script type="text/x-template" id="chat-message">
         <div :class="'answer ' + answerClass">
             <div class="avatar">
-                <img :src="avatarUrl" :alt="fullName" :title="fullName">
+                <img :src="avatarUrl" :alt="userName" :title="userName">
                 <div class="status"></div>
             </div>
             <div class="text">
                 {{ body }}
-                <div v-if="mediaHtml" v-html="mediaHtml"></div>
+                <div v-if="mediaHtml" class="message-media-cont" v-html="mediaHtml"></div>
             </div>
             <div class="name">
                 <span v-if="! itsMe">
-                    {{ userName }} -
+                    <strong>{{ userName }}</strong> -
                 </span>
                 {{ formatedDate }}
             </div>
         </div>
     </script>
-
     <script type="text/x-template" id="chat-window">
         <div>
-            <main role="main" class="box-body">
-                <div class="content container-fluid bootstrap snippets chat">
+            <main class="box-body">
+                <div class="chat">
                     <div class="chat-body">
                         <div class="chat-status">
-                            <h6 class="label label-danger" v-if="!connected">Connecting...</h6>
-                            <h6 class="label label-danger" v-if="connected && !historyLoaded">Loading history...</h6>
+                            <h6 class="badge badge-primary" v-if="!connected">Connecting...</h6>
+                            <h6 class="badge badge-primary" v-if="connected && !historyLoaded">Loading history...</h6>
                         </div>
                         <chat-message
                             :class="{disabled: !connected}"
@@ -115,11 +117,9 @@
                             :clock-mode="$parent.clockMode"
                             :type="message.userType">
                         </chat-message>
-                        
                     </div>
                 </div>
             </main>
-        
             <footer class="box-footer">
                 <form class="form-answer" v-on:submit.prevent="sendMsg">
                     <div class="chat-feedback" v-if="typing && typing.userName">
@@ -131,19 +131,11 @@
             </footer>
         </div>
     </script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.10/vue.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.slim.js"></script>
     <script src="./js/components/chat-window.vue.js"></script>
     <script src="./js/components/chat-message.vue.js"></script>
     <script src="./js/api.js"></script>
     <script src="./js/app.js"></script>
-    
   </body>
 </html>
-
-
-
-
-
-
-
-

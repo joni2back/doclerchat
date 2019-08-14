@@ -2,15 +2,20 @@
 
 ### Docker containers and microservice details
 
--  **chat_io_node** 
+-  **doclerchat_io_node** 
 	- Web application to serve websocket chat and frontend client
 	- ***Language:** EcmaScript6*
 	- ***Techs:** Node + SocketIO + ExpressJS + Mongoose*
 
--  **chat_io_mongo** 
+-  **doclerchat_mongo** 
 	- Database to save chat conversations
 	- ***Works with:** ./db/*
 	- ***Techs:** MongoDB*
+
+-  **public** 
+	- Frontend part
+	- ***Works with:** ./public/*
+	- ***Techs:** VueJS, Bootstrap4*
 
 ---
 

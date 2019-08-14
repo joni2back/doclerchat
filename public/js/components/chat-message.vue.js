@@ -17,7 +17,7 @@ function formatDate(date, isAmPmMode) {
     const minutes = ('0' + date.getMinutes()).slice(-2);
     const seconds = ('0' + date.getSeconds()).slice(-2);
 
-    return `${hour}:${minutes}${ampm} ${day}/${month}/${year}`;
+    return `${hour}:${minutes} ${ampm} - ${day}/${month}/${year}`;
 }
 
 Vue.component('chat-message', {
@@ -31,16 +31,14 @@ Vue.component('chat-message', {
 	},
 	computed: {
         avatarUrl: function() {
-            return 'https://www.nretnil.com/avatar/LawrenceEzekielAmos.png';
+            //allow mongoose to save profile image url?
+            return this.itsMe ? 'https://66.media.tumblr.com/2cf732ea2b706a10c855a01ce90c7c5f/tumblr_oynf74zBnM1ujp508o6_250.png' : 'https://i.pinimg.com/280x280_RS/ae/b0/04/aeb004cc78cb53dba21b8bcf07e71333.jpg';
         },
         answerClass: function() {
             return this.itsMe ? 'right' : 'left';
         },
         formatedDate: function() {
             return formatDate(this.date, this.clockMode == 12);
-        },
-        fullName: function() {
-            return `${this.userName}`;
         },
         mediaHtml: function() {
             const links = this.body.match(/(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig) || [];
