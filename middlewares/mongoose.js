@@ -6,7 +6,7 @@ module.exports = function(req, res, next) {
     }).then(() => {
         next();
     }).catch(err => {
-        console.log(err)
-        req.send(500, 'Error connecting MongoDB')
+        console.log(err);
+        res.send(500, 'Error connecting MongoDB');
     });
 };
